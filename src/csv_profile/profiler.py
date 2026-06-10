@@ -4,10 +4,13 @@ from typing import Dict, Any, List
 def analyze_csv(file_path: str) -> Dict[str, Any]:
     """Parses a CSV file and calculates structural metrics and per-column profiles."""
     with open(file_path, mode='r', encoding='utf-8-sig') as f:
-        # Detect delimiter automatically (comma, tab, semicolon)
+        # Detect delimiter automatically with an explicit fallback for standard commas
         try:
             sample = f.read(2048)
-            dialect = csv.Sniffer().sniff(sample)
+            if "," in sample and "\n" in sample:
+                dialect = csv.get_dialect('excel')
+            else:
+                dialect = csv.Sniffer().sniff(sample)
             f.seek(0)
         except Exception:
             f.seek(0)
